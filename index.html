@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Smart Grocery Billing System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+            background-color: #ffffff;
+            color: #333333;
+        }
+        h1 {
+            color: #2c3e50; 
+        }
+        form {
+            margin-bottom: 1.5rem;
+        }
+        select, input[type=number] {
+            padding: 0.5rem;
+            font-size: 1rem;
+            border: 1px solid #bbb;
+            border-radius: 4px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        select option {
+            background-color: #ffffff;
+            color: #333333;
+        }
+        button {
+            padding: 0.6rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+            background-color: #20c997; 
+            border: none;
+            color: white;
+            border-radius: 4px;
+            margin-left: 0.5rem;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #17a589;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: #ffffff;
+            color: #333333;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+        }
+        th, td {
+            padding: 0.7rem;
+            border: 1px solid #e0e0e0;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #20c997; 
+            color: white;
+        }
+        .item-name {
+            vertical-align: middle;
+            text-align: left;
+        }
+        .flash {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .flash-info {
+            background-color: #e2f0fb;
+            color: #004085;
+        }
+        .actions {
+            margin-top: 1rem;
+        }
+        .actions a {
+            margin-right: 1rem;
+            text-decoration: none;
+            background: #20c997;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .actions a:hover {
+            background: #17a589;
+        }
+        .thank-you-msg {
+            margin-top: 1rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <h1>Smart Grocery Billing System</h1>
+
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash flash-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('index') }}">
+        <label for="item">Select Item:</label>
+        <select name="item" id="item" required>
+            <option value="" disabled selected>--Choose an item--</option>
+            {% for item in items %}
+            <option value="{{ item }}">{{ item }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="quantity">Quantity:</label>
+        <input type="number" name="quantity" id="quantity" value="1" min="1" required />
+
+        <button type="submit">Add to Bill</button>
+    </form>
+
+    {% if bill %}
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th><th>Price</th><th>Quantity</th><th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in bill %}
+            <tr>
+                <td class="item-name">{{ row['Item'] }}</td>
+                <td>{{ row['Price'] }}</td>
+                <td>{{ row['Quantity'] }}</td>
+                <td>{{ row['Total'] }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <th colspan="3" style="text-align:right">Grand Total</th>
+                <th>{{ total_bill }}</th>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="actions">
+        <a href="{{ url_for('reset_bill') }}">Reset Bill</a>
+        <a href="{{ url_for('download_csv') }}">Download CSV</a>
+        <a href="{{ url_for('download_pdf') }}">Download PDF</a>
+    </div>
+
+    <div class="thank-you-msg">
+        Thank you for shopping with us! Visit again.
+    </div>
+    {% else %}
+    <p>No items added to the bill yet.</p>
+    {% endif %}
+</body>
+</html>
